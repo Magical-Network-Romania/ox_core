@@ -79,7 +79,7 @@ const bleedOutTime = DEBUG ? 100 : 1000;
 
 async function OnPlayerDeath() {
   OxPlayer.state.set('isDead', true, true);
-  emit('ox_inventory:disarm');
+  // emit('ox_inventory:disarm');
   emit('ox:playerDeath');
 
   if (!DEATH_SYSTEM) return;

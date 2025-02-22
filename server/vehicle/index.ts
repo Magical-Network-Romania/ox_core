@@ -77,7 +77,20 @@ export async function CreateVehicle(
     );
   }
 
-  if (!entity || !DoesEntityExist(entity)) return;
+  if (!entity || !DoesEntityExist(entity)) {
+    return {
+      id: data.id,
+      plate: data.plate,
+      vin: data.vin,
+      owner: data.owner,
+      group: data.group,
+      model: data.model,
+      stored: data.stored,
+      metadata,
+      properties: data.properties || metadata.properties,
+      entity: null
+    };
+  }
 
   const properties = data.properties || metadata.properties || ({} as VehicleProperties);
   delete metadata.properties;

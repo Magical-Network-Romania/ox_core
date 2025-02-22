@@ -27,10 +27,11 @@ addCommand<{ model: string; owner?: number }>(
       owner: player?.charId || undefined,
     };
 
-    const vehicle = await CreateVehicle(data, GetEntityCoords(ped), GetEntityHeading(ped));
+    const vehicle = await CreateVehicle(data, GetEntityCoords(ped), GetEntityHeading(ped)) as OxVehicle;
 
     if (!vehicle) return;
 
+    exports.mgcl_vehicles.giveKey(playerId, vehicle.netId);
     DeleteCurrentVehicle(ped);
     await sleep(200);
     SetPedIntoVehicle(ped, vehicle.entity, -1);
