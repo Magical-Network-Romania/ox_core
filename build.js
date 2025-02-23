@@ -31,7 +31,7 @@ createBuilder(
       name: 'server',
       options: {
         platform: 'node',
-        target: ['node22'],
+        target: ['node16'],
         format: 'cjs',
         entryPoints: [`./server/index.ts`],
       },
@@ -52,7 +52,7 @@ createBuilder(
       server_scripts: [files.server],
       files: ['lib/init.lua', 'lib/client/**.lua', 'locales/*.json', 'common/data/*.json'],
       dependencies: ['/server:12913', '/onesync'],
-      metadata: { node_version: '22' }
+      // metadata: { node_version: '22' }
     });
   }
 );
