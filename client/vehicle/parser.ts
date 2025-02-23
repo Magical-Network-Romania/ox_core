@@ -17,6 +17,32 @@ const vehiclePriceModifiers: Partial<Record<VehicleTypes, number>> = {
   trailer: 10000,
 };
 
+const vehicleClassModifiers: Record<number, number> = {
+  0: 0.7, // Compacts
+  1: 0.8, // Sedans
+  2: 1.3, // SUVs
+  3: 1.0, // Coupes
+  4: 1.2, // Muscle
+  5: 1.8, // Sports Classics
+  6: 1.5, // Sports
+  7: 13, // Super
+  8: 0.9, // Motorcycles
+  9: 1.1, // Off-road
+  10: 2, // Industrial
+  11: 1.3, // Utility
+  12: 1.2, // Vans
+  13: 0.3, // Cycles
+  14: 1.2, // Boats
+  15: 1.5, // Helicopters
+  16: 1.6, // Planes
+  17: 1.6, // Service
+  18: 2, // Emergency
+  19: 1.5, // Military
+  20: 1.5, // Commercial
+  21: 1.2, // Trains
+  22: 4, // Open Wheel (Formula 1)
+};
+
 onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
   const coords = GetEntityCoords(cache.ped, true);
   const vehicles: Record<string, VehicleData> = {} as any;
@@ -107,7 +133,7 @@ onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
       }
     }
 
-    let price = stats.braking + stats.acceleration + stats.handling + stats.speed;
+    let price = stats.braking + stats.acceleration + stats.handling + stats.speed + stats.traction;
 
     if (GetVehicleHasKers(entity)) price *= 2;
     if (GetHasRocketBoost(entity)) price *= 3;
@@ -126,8 +152,11 @@ onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
     parsed++;
     vehicles[model] = data;
     const priceModifier = vehiclePriceModifiers[vehicleType];
+    const classPriceModifier = vehicleClassModifiers[vehicleClass];
 
-    if (priceModifier) data.price = Math.floor(price * priceModifier);
+    if (priceModifier) price *= priceModifier;
+    if (classPriceModifier) price *= classPriceModifier;
+    data.price = Math.floor(price);
 
     SetVehicleAsNoLongerNeeded(entity);
     SetModelAsNoLongerNeeded(hash);
