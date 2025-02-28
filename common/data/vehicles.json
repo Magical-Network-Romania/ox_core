@@ -2582,6 +2582,34 @@
     "type": "automobile",
     "price": 122476
   },
+  "courier_boxville": {
+    "acceleration": 0.11,
+    "braking": 0.25,
+    "handling": 0.49,
+    "speed": 28.6961,
+    "traction": 1.55,
+    "name": "Boxville",
+    "make": "Brute",
+    "class": 12,
+    "seats": 6,
+    "doors": 5,
+    "type": "automobile",
+    "price": 59704
+  },
+  "courier_mule": {
+    "acceleration": 0.17,
+    "braking": 0.25,
+    "handling": 0.55,
+    "speed": 31.9047,
+    "traction": 1.5,
+    "name": "Mule",
+    "make": "Maibatsu",
+    "class": 20,
+    "seats": 6,
+    "doors": 4,
+    "type": "automobile",
+    "price": 82499
+  },
   "cruiser": {
     "acceleration": 0.08,
     "braking": 2.8,
