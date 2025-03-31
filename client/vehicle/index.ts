@@ -35,7 +35,9 @@ AddStateBagChangeHandler('initVehicle', '', async (bagName: string, key: string,
 
   if (!entity) return;
 
+  const [x, y, z] = Vector3.fromArray(GetEntityCoords(entity, false));
   await waitFor(async () => {
+    RequestCollisionAtCoord(x, y, z);
     if (!IsEntityWaitingForWorldCollision(entity)) return true;
   });
 
