@@ -3,7 +3,6 @@ import { CreateNewVehicle, GetStoredVehicleFromId, IsPlateAvailable, VehicleRow 
 import { GetVehicleData } from '../../common/vehicles';
 import { DEBUG } from '../../common/config';
 import './class';
-import './commands';
 import './events';
 import { VehicleProperties } from '@overextended/ox_lib/server';
 import { Vector3 } from '@nativewrappers/server';
