@@ -10,5 +10,6 @@
   "withdraw": "Retragere",
   "deposit": "Depunere",
   "transfer": "Transfer bancar",
-  "invoice_payment": "Plată factură"
+  "invoice_payment": "Plată factură",
+  "server_restarting": "Serverul se restartează. Te rugăm să revii într-un minut!"
 }
