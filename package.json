@@ -18,7 +18,8 @@
   "scripts": {
     "build": "node build.js",
     "watch": "node build.js --watch",
-    "prettier": "prettier ./{client,common,server,lib}/**/*.{ts,ts} --write"
+    "format": "pnpm biome format --write",
+    "lint": "pnpm biome lint --write"
   },
   "keywords": [
     "fivem",
@@ -35,17 +36,17 @@
     "@citizenfx/client": "latest",
     "@citizenfx/server": "latest",
     "@overextended/fx-utils": "^0.0.4",
-    "@types/node": "^20.17.19",
+    "@types/node": "^22.13.10",
     "esbuild": "^0.23.1",
-    "prettier": "^3.5.1",
-    "tsc-alias": "^1.8.10",
-    "typescript": "^5.7.3"
+    "tsc-alias": "^1.8.11",
+    "typescript": "^5.8.2"
   },
   "dependencies": {
-    "@nativewrappers/fivem": "^0.0.56",
-    "@nativewrappers/server": "^0.0.56",
+    "@biomejs/biome": "^1.9.4",
+    "@nativewrappers/fivem": "^0.0.86",
+    "@nativewrappers/server": "^0.0.86",
     "@overextended/ox_lib": "^3.29.0",
-    "mariadb": "^3.4.0"
+    "mariadb": "^3.4.1"
   },
   "engines": {
     "node": ">=22.9.0"

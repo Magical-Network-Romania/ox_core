@@ -43,6 +43,41 @@ const vehicleClassModifiers: Record<number, number> = {
   22: 4, // Open Wheel (Formula 1)
 };
 
+function GetVehicleTypeEx(entity: number): VehicleTypes {
+  switch (GetVehicleTypeRaw(entity)) {
+    case 0:
+    default:
+      return 'automobile';
+    case 1:
+      return 'plane';
+    case 2:
+      return 'trailer';
+    case 3:
+      return 'quadbike';
+    case 5:
+      return 'submarinecar';
+    case 6:
+      return 'amphibious_automobile';
+    case 7:
+      return 'amphibious_quadbike';
+    case 8:
+      return 'heli';
+    case 9:
+      return 'blimp';
+    case 11:
+      return 'bike';
+    case 12:
+      return 'bicycle';
+    case 13:
+      return 'boat';
+    case 14:
+      return 'train';
+    case 15:
+      return 'submarine';
+  }
+}
+
+
 onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
   const coords = GetEntityCoords(cache.ped, true);
   const vehicles: Record<string, VehicleData> = {} as any;
@@ -84,7 +119,6 @@ onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
     SetPedIntoVehicle(cache.ped, entity, -1);
 
     const vehicleClass = GetVehicleClass(entity);
-    const vehicleType = GetVehicleType(entity) as VehicleTypes;
 
     const stats: VehicleStats = {
       acceleration: parseFloat(GetVehicleModelAcceleration(hash).toFixed(4)),
@@ -93,6 +127,15 @@ onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
       speed: parseFloat(GetVehicleModelEstimatedMaxSpeed(hash).toFixed(4)),
       traction: parseFloat(GetVehicleModelMaxTraction(hash).toFixed(4)),
     };
+
+    
+    const vehicleType = GetVehicleTypeEx(entity);
+    const vehicleCategory: VehicleCategories =
+      vehicleType === 'heli' || vehicleType === 'plane' || vehicleType === 'blimp'
+        ? 'air'
+        : vehicleType === 'boat' || vehicleType === 'submarine'
+          ? 'sea'
+          : 'land';
 
     const data: VehicleData = {
       acceleration: stats.acceleration,
@@ -107,6 +150,7 @@ onServerCallback('ox:generateVehicleData', async (parseAll: boolean) => {
       doors: GetNumberOfVehicleDoors(entity),
       type: vehicleType,
       price: 0,
+      category: vehicleCategory
     };
 
     console.log(index, model, `^3| ${data.make} ${data.name}^0`);

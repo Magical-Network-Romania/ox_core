@@ -1,22 +1,23 @@
 import { OxPlayer } from 'player/class';
-import { CreateUser, GetUserIdFromIdentifier } from './db';
+import { CreateUser, GetUserIdFromIdentifier, IsUserBanned, UpdateUserTokens } from './db';
 import { GetIdentifiers, GetPlayerLicense } from 'utils';
 import { DEBUG, SV_LAN } from '../config';
 import type { Dict } from 'types';
+import locales from '../../common/locales';
 
 const connectingPlayers: Dict<OxPlayer> = {};
 
 /** Loads existing data for the player, or inserts new data into the database. */
 async function loadPlayer(playerId: number) {
   let player: OxPlayer | undefined;
-  
+
   try {
     if (serverLockdown) return serverLockdown;
 
     player = new OxPlayer(playerId);
     const license = SV_LAN ? 'fayoum' : GetPlayerLicense(playerId);
 
-    if (!license) return `could not validate player license.`;
+    if (!license) return locales('no_license');
 
     const identifier = license.substring(license.indexOf(':') + 1);
     let userId: number;
@@ -24,11 +25,21 @@ async function loadPlayer(playerId: number) {
     userId = (await GetUserIdFromIdentifier(identifier)) ?? 0;
 
     if (userId && OxPlayer.getFromUserId(userId)) {
-      const kickReason = `userId '${userId}' is already active.`;
+      const kickReason = locales('userid_is_active', userId);
+
       if (!DEBUG) return kickReason;
 
       userId = (await GetUserIdFromIdentifier(identifier, 1)) ?? 0;
       if (userId && OxPlayer.getFromUserId(userId)) return kickReason;
+    }
+
+    const tokens = getPlayerTokens(playerId);
+    await UpdateUserTokens(userId, tokens);
+
+    const ban = await IsUserBanned(userId);
+
+    if (ban) {
+      return OxPlayer.formatBanReason(ban);
     }
 
     player.username = GetPlayerName(player.source as string);
@@ -38,10 +49,9 @@ async function loadPlayer(playerId: number) {
     DEV: console.info(`Loaded player data for OxPlayer<${player.userId}>`);
 
     return player;
-
   } catch (err) {
     console.error('Error loading player:', err);
-    // Ensure we clean up if there was an error during setup
+
     if (player?.userId) {
       try {
         OxPlayer.remove(player.source);
@@ -49,6 +59,7 @@ async function loadPlayer(playerId: number) {
         console.error('Error during cleanup:', cleanupErr);
       }
     }
+
     return err.message;
   }
 }
@@ -62,8 +73,8 @@ setInterval(() => {
 }, 10000);
 
 on('txAdmin:events:serverShuttingDown', () => {
-  serverLockdown = 'The server is about to restart. You cannot join at this time.';
-  OxPlayer.saveAll('Server is restarting.');
+  serverLockdown = locales('server_restarting');
+  OxPlayer.saveAll(serverLockdown);
 });
 
 on('playerConnecting', async (username: string, _: any, deferrals: any) => {
@@ -75,7 +86,7 @@ on('playerConnecting', async (username: string, _: any, deferrals: any) => {
 
   const player = await loadPlayer(tempId);
 
-  if (!(player instanceof OxPlayer)) return deferrals.done(player || `Failed to load player.`);
+  if (!(player instanceof OxPlayer)) return deferrals.done(player || 'Failed to load player.');
 
   connectingPlayers[tempId] = player;
 
@@ -101,7 +112,7 @@ onNet('ox:playerJoined', async () => {
   const player = connectingPlayers[playerSrc] || (await loadPlayer(playerSrc));
   delete connectingPlayers[playerSrc];
 
-  if (!(player instanceof OxPlayer)) return DropPlayer(playerSrc.toString(), player || `Failed to load player.`);
+  if (!(player instanceof OxPlayer)) return DropPlayer(playerSrc.toString(), player || 'Failed to load player.');
 
   player.setAsJoined();
 });
@@ -122,5 +133,5 @@ RegisterCommand(
   () => {
     OxPlayer.saveAll();
   },
-  true
+  true,
 );

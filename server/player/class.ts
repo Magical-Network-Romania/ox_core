@@ -24,10 +24,11 @@ import {
   SetActiveGroup,
 } from 'groups/db';
 import { PayAccountInvoice } from 'accounts';
-import type { Character, Dict, NewCharacter, PlayerMetadata, OxGroup, CharacterLicense } from 'types';
+import type { Character, Dict, NewCharacter, PlayerMetadata, OxGroup, CharacterLicense, BanDetails } from 'types';
 import { GetGroupPermissions } from '../../common';
 import { Licenses } from './license';
 import { CHARACTER_SLOTS } from 'config';
+import locales from '../../common/locales';
 
 export class OxPlayer extends ClassInterface {
   source: number | string;
@@ -62,6 +63,22 @@ export class OxPlayer extends ClassInterface {
   /** Get an instance of OxPlayer with the matching charId. */
   static getFromCharId(id: number) {
     return this.keys.charId[id];
+  }
+
+  static formatBanReason(ban: BanDetails) {
+    const unbanTime = ban.unban_at ? new Date(ban.unban_at) : null;
+    let timeRemainingMessage;
+
+    if (unbanTime) {
+      const timeRemaining = +unbanTime - Date.now();
+      const hours = Math.floor(timeRemaining / (1000 * 60 * 60));
+      const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
+
+      timeRemainingMessage = locales('ban_expires_in', hours, minutes, seconds);
+    } else timeRemainingMessage = locales('ban_indefinite');
+
+    return locales('ban_notice', new Date(ban.banned_at).toLocaleString(), ban.reason, timeRemainingMessage);
   }
 
   /** Compares player fields and metadata to a filter, returning the player if all values match. */
@@ -147,7 +164,7 @@ export class OxPlayer extends ClassInterface {
   set<K extends string>(
     key: K | keyof PlayerMetadata,
     value: K extends keyof PlayerMetadata ? PlayerMetadata[K] : any,
-    replicated?: boolean
+    replicated?: boolean,
   ): void;
   set(key: string, value: any, replicated?: boolean) {
     this.#metadata[key] = value;
@@ -219,7 +236,7 @@ export class OxPlayer extends ClassInterface {
           })
         )
           return console.warn(
-            `Failed to set OxPlayer<${this.userId}> ${group.name}:${grade} (already has group of type '${group.type}')`
+            `Failed to set OxPlayer<${this.userId}> ${group.name}:${grade} (already has group of type '${group.type}')`,
           );
 
         if (!(await AddCharacterGroup(this.charId, group.name, grade))) return;
@@ -404,6 +421,8 @@ export class OxPlayer extends ClassInterface {
 
     this.#groups[group.name] = grade;
     GlobalState[`${group.name}:count`] += 1;
+
+    if (group.name === this.get('activeGroup')) GlobalState[`${group.name}:activeCount`] += 1;
   }
 
   /** Removes the active character from the group and sets permissions. */
@@ -451,7 +470,7 @@ export class OxPlayer extends ClassInterface {
    * @param dropped If the player has been dropped from the server.
    * @param save If character data should be saved to the database (defaults to true).
    */
-  async logout(save: boolean = true, dropped = false) {
+  async logout(save = true, dropped = false) {
     if (!this.charId) return;
 
     for (const name in this.#groups) this.#removeGroup(name, this.#groups[name]);
@@ -500,7 +519,7 @@ export class OxPlayer extends ClassInterface {
         data.lastName,
         data.gender,
         data.date,
-        phoneNumber
+        phoneNumber,
       ),
       isNew: true,
       gender: data.gender,
@@ -614,4 +633,4 @@ OxPlayer.init();
 exports('SaveAllPlayers', (arg: any) => OxPlayer.saveAll(arg));
 exports('GetPlayerFromUserId', (arg: any) => OxPlayer.getFromUserId(arg));
 exports('GetPlayerFromFilter', (arg: any) => OxPlayer.getFromFilter(arg));
-exports(`GetPlayers`, (arg: any) => OxPlayer.getAll(arg, true));
+exports('GetPlayers', (arg: any) => OxPlayer.getAll(arg, true));

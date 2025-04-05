@@ -101,7 +101,9 @@ export interface VehicleData extends VehicleStats {
   price: number;
   seats: number;
   type: VehicleTypes;
+  category: VehicleCategories;
   weapons?: true;
+  [key: string]: unknown;
 }
 
 export interface OxLicense {
@@ -200,4 +202,12 @@ export interface OxCreateInvoice {
   amount: number;
   message: string;
   dueDate: string;
+}
+
+export interface BanDetails {
+  userId: number;
+  token?: string;
+  reason?: string;
+  banned_at: number;
+  unban_at?: number;
 }

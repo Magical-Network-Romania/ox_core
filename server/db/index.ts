@@ -68,6 +68,7 @@ export class Connection {
   }
 
   commit() {
+    delete this.transaction;
     return this.connection.commit();
   }
 
@@ -79,7 +80,7 @@ export class Connection {
 
 export async function GetConnection() {
   while (!pool) {
-    await waitFor(() => pool, `Failed to acquire database connection.`, 30000);
+    await waitFor(() => pool, 'Failed to acquire database connection.', 30000);
   }
 
   return new Connection(await pool.getConnection());
