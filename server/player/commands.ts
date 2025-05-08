@@ -22,14 +22,3 @@ addCommand(
     restricted: 'group.admin',
   },
 );
-
-addCommand(
-  'charinfo',
-  async (playerId) => {
-    const player = OxPlayer.get(playerId);
-    console.log(`${player.get('firstName')} ${player.get('lastName')} (${player.charId}) - ${player.stateId}`);
-  },
-  {
-    help: 'Display basic character information.',
-  },
-);

@@ -3,7 +3,6 @@ import { CreateNewVehicle, GetStoredVehicleFromId, IsPlateAvailable, type Vehicl
 import { GetVehicleData } from '../../common/vehicles';
 import { DEBUG } from '../../common/config';
 import './class';
-import './commands';
 import './events';
 import type { VehicleProperties } from '@communityox/ox_lib/server';
 
