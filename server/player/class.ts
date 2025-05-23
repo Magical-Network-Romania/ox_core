@@ -187,9 +187,19 @@ export class OxPlayer extends ClassInterface {
 
     const currentActiveGroup = this.get('activeGroup');
 
-    if (currentActiveGroup) GlobalState[`${currentActiveGroup}:activeCount`] -= 1;
+    if (currentActiveGroup) {
+      GlobalState[`${currentActiveGroup}:activeCount`] -= 1;
 
-    if (groupName) GlobalState[`${groupName}:activeCount`] += 1;
+      const group = GetGroup(currentActiveGroup);
+      group.activePlayers.delete(+this.source);
+    }
+
+    if (groupName) {
+      GlobalState[`${groupName}:activeCount`] += 1;
+
+      const group = GetGroup(groupName);
+      group.activePlayers.add(+this.source);
+    }
 
     SetActiveGroup(this.charId, temp ? undefined : groupName);
     this.set('activeGroup', groupName, true);
@@ -308,12 +318,10 @@ export class OxPlayer extends ClassInterface {
   setStatus(statusName: string, value = Statuses[statusName].default) {
     if (Statuses[statusName] === undefined) return;
 
-    if (value > 100) value = 100;
-    else if (value < 0) value = 0;
+    const newValue = value < 0 ? 0 : value > 100 ? 100 : Number.parseFloat((value).toPrecision(8));
+    this.#statuses[statusName] = newValue
 
-    this.#statuses[statusName] = value;
-
-    if (!source) this.emit('ox:setPlayerStatus', statusName, value, true);
+    this.emit('ox:setPlayerStatus', statusName, newValue, true);
 
     return true;
   }
@@ -332,7 +340,11 @@ export class OxPlayer extends ClassInterface {
   addStatus(statusName: string, value: number) {
     if (this.#statuses[statusName] === undefined) return;
 
-    this.emit('ox:setPlayerStatus', statusName, +value);
+    let newValue = this.#statuses[statusName] + value;
+    newValue = newValue < 0 ? 0 : newValue > 100 ? 100 : Number.parseFloat((newValue).toPrecision(8));
+
+    this.#statuses[statusName] = newValue;
+    this.emit('ox:setPlayerStatus', statusName, newValue);
 
     return true;
   }
@@ -341,7 +353,11 @@ export class OxPlayer extends ClassInterface {
   removeStatus(statusName: string, value: number) {
     if (this.#statuses[statusName] === undefined) return;
 
-    this.emit('ox:setPlayerStatus', statusName, -value);
+    let newValue = this.#statuses[statusName] - value;
+    newValue = newValue < 0 ? 0 : newValue > 100 ? 100 : Number.parseFloat((newValue).toPrecision(8));
+
+    this.#statuses[statusName] = newValue;
+    this.emit('ox:setPlayerStatus', statusName, newValue);
 
     return true;
   }
@@ -437,7 +453,10 @@ export class OxPlayer extends ClassInterface {
     delete this.#groups[group.name];
     GlobalState[`${group.name}:count`] -= 1;
 
-    if (canRemoveActiveCount && group.name === this.get('activeGroup')) GlobalState[`${group.name}:activeCount`] -= 1;
+    if (canRemoveActiveCount && group.name === this.get('activeGroup')) {
+      GlobalState[`${group.name}:activeCount`] -= 1;
+      group.activePlayers.delete(+this.source);
+    }
   }
 
   /** Saves the active character to the database. */
@@ -582,8 +601,14 @@ export class OxPlayer extends ClassInterface {
     this.set('phoneNumber', phoneNumber, true);
     this.set('activeGroup', groups.find((group) => group.isActive)?.name, true);
 
-    if (this.get('activeGroup')) GlobalState[`${this.get('activeGroup')}:activeCount`] += 1;
-    DEV: console.info(`Restored OxPlayer<${this.userId}> previous active group: ${this.get('activeGroup')}`);
+    const activeGroup = this.get('activeGroup');
+    if (activeGroup) {
+      GlobalState[`${this.get('activeGroup')}:${activeGroup}`] += 1;
+
+      const group = GetGroup(activeGroup)
+      group.activePlayers.add(+this.source);
+    }
+    DEV: console.info(`Restored OxPlayer<${this.userId}> previous active group: ${activeGroup}`);
 
     OxPlayer.keys.charId[character.charId] = this;
 

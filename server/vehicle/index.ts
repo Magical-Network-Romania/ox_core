@@ -13,7 +13,7 @@ export interface CreateVehicleData {
   owner?: number;
   group?: string;
   stored?: string;
-  properties?: VehicleProperties;
+  properties?: Partial<VehicleProperties>;
 }
 
 export async function CreateVehicle(
@@ -54,8 +54,8 @@ export async function CreateVehicle(
         ? data.plate
         : await OxVehicle.generatePlate();
 
-  const metadata = data.data || ({} as { properties?: VehicleProperties; [key: string]: any });
-  metadata.properties = data.properties || data.data?.properties || ({} as VehicleProperties);
+  const metadata = data.data || ({} as { properties?: Partial<VehicleProperties>; [key: string]: any });
+  metadata.properties = data.properties || data.data?.properties || ({} as Partial<VehicleProperties>);
 
   if (!data.id && data.vin && isOwned) {
     data.id = await CreateNewVehicle(
@@ -70,7 +70,7 @@ export async function CreateVehicle(
     );
   }
 
-  const properties = data.properties || metadata.properties || ({} as VehicleProperties);
+  const properties = data.properties || metadata.properties || ({} as Partial<VehicleProperties>);
   delete metadata.properties;
 
   const vehicle = new OxVehicle(

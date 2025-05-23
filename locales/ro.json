@@ -11,13 +11,13 @@
   "deposit": "Depunere",
   "transfer": "Transfer bancar",
   "invoice_payment": "Plată factură",
-  "hours": "hours",
-  "minutes": "minutes",
-  "seconds": "seconds",
-  "ban_indefinite": "This ban will not expire.",
-  "ban_expires_in": "Ban expires in %s ${hours}, %s ${minutes}, and %s ${seconds}.",
-  "ban_notice": "⚠️ You have been banned from this server! ⚠️\nBan issued: %s\nReason: %s\n\n%s",
-  "userid_is_active": "Id-ul tău de utilizator (%s), este deja activ.",
-  "no_license": "Nu am putut să-ți verificăm licența.",
-  "server_restarting": "Serverul se repornește, te rugăm să revii în câteva momente."
+  "hours": "ore",
+  "minutes": "minute",
+  "seconds": "secunde",
+  "ban_indefinite": "Acest ban nu va expira.",
+  "ban_expires_in": "Banul expiră în %s ${hours}, %s ${minutes}, și %s ${seconds}.",
+  "ban_notice": "⚠️ Ai fost banat de pe server! ⚠️\nBan emis la: %s\nMotiv: %s\n\n%s",
+  "userid_is_active": "ID-ul tău de utilizator (%s), este deja activ.",
+  "no_license": "Nu am putut să-ți verificăm licența jocului tău.",
+  "server_restarting": "Serverul se repornește, te rugăm să revii într-un minut!"
 }
