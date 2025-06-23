@@ -59,12 +59,12 @@ netEvent('ox:startCharacterSelect', async (_userId: number, characters: Characte
   ];
   const heading = character?.heading || SPAWN_LOCATION[3];
 
+  if (!CHARACTER_SELECT) return;
+  
   RequestCollisionAtCoord(x, y, z);
   FreezeEntityPosition(cache.ped, true);
   SetEntityCoordsNoOffset(cache.ped, x, y, z, true, true, false);
   SetEntityHeading(cache.ped, heading);
-
-  if (!CHARACTER_SELECT) return;
 
   SwitchOutPlayer(cache.ped, 1 | 8192, 1);
 
