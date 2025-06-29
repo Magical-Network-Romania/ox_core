@@ -51,6 +51,8 @@ netEvent('ox:startCharacterSelect', async (_userId: number, characters: Characte
 
   StartSession();
 
+  if (!CHARACTER_SELECT) return;
+
   const character = characters[0];
   const [x, y, z] = [
     character?.x || SPAWN_LOCATION[0],
